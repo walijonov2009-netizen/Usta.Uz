@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Usta.Uz — Admin Login</title>
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+        }
+
+        .login-box {
+            width: 350px;
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            background: #1677ff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #095dcc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h1>🔐 Admin Login</h1>
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Login"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Parol"
+                required
+            >
+
+            <button type="submit">
+                Kirish
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

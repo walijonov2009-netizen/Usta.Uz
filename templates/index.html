@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Usta.Uz — Ishonchli ustalar platformasi</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- ============================= -->
+    <!-- NAVBAR -->
+    <!-- ============================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Usta<span>.Uz</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="#home">Bosh sahifa</a>
+            <a href="#services">Xizmatlar</a>
+            <a href="#masters">Ustalar</a>
+            <a href="#about">Biz haqimizda</a>
+        </div>
+
+        <a href="/admin-login" class="login-btn">
+            Kirish
+        </a>
+
+    </nav>
+
+
+    <!-- ============================= -->
+    <!-- HERO -->
+    <!-- ============================= -->
+
+    <section id="home" class="hero">
+
+        <div class="hero-content">
+
+            <h1>
+                Ishonchli ustalar platformasi
+            </h1>
+
+            <p>
+                Kerakli ustani bir necha daqiqada toping
+            </p>
+
+
+            <div class="search-box">
+
+                <select id="cityFilter">
+                    <option value="">Shaharni tanlang</option>
+
+                    <option value="Toshkent">
+                        Toshkent
+                    </option>
+
+                    <option value="Samarqand">
+                        Samarqand
+                    </option>
+
+                    <option value="Andijon">
+                        Andijon
+                    </option>
+
+                    <option value="Farg‘ona">
+                        Farg‘ona
+                    </option>
+
+                    <option value="Namangan">
+                        Namangan
+                    </option>
+
+                    <option value="Buxoro">
+                        Buxoro
+                    </option>
+
+                </select>
+
+
+                <button type="button" onclick="searchMasters()">
+                    🔍 Qidirish
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- XIZMATLAR -->
+    <!-- ============================= -->
+
+    <section id="services" class="section">
+
+        <h2>Xizmatlar</h2>
+
+
+        <div class="service-grid">
+
+            <div class="service-card">
+
+                ⚡
+
+                <h3>
+                    Elektrik
+                </h3>
+
+                <p>
+                    Elektr bilan bog‘liq xizmatlar
+                </p>
+
+            </div>
+
+
+            <div class="service-card">
+
+                🔧
+
+                <h3>
+                    Santexnik
+                </h3>
+
+                <p>
+                    Suv va quvur xizmatlari
+                </p>
+
+            </div>
+
+
+            <div class="service-card">
+
+                🧱
+
+                <h3>
+                    Quruvchi
+                </h3>
+
+                <p>
+                    Qurilish va ta'mirlash
+                </p>
+
+            </div>
+
+
+            <div class="service-card">
+
+                🎨
+
+                <h3>
+                    Bo‘yoqchi
+                </h3>
+
+                <p>
+                    Uy va bino bo‘yash
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- USTALAR -->
+    <!-- ============================= -->
+
+    <section id="masters" class="section">
+
+        <h2>
+            👨‍🔧 Ustalar
+        </h2>
+
+
+        <!-- USTA QIDIRISH -->
+
+        <div class="master-filters">
+
+            <input
+                type="text"
+                id="masterSearch"
+                placeholder="🔍 Usta yoki xizmat qidiring..."
+                oninput="filterMasters()"
+            >
+
+
+            <select
+                id="serviceFilter"
+                onchange="filterMasters()"
+            >
+
+                <option value="">
+                    Barcha xizmatlar
+                </option>
+
+                <option value="Elektrik">
+                    Elektrik
+                </option>
+
+                <option value="Santexnik">
+                    Santexnik
+                </option>
+
+                <option value="Quruvchi">
+                    Quruvchi
+                </option>
+
+                <option value="Malyar">
+                    Malyar
+                </option>
+
+                <option value="Duradgor">
+                    Duradgor
+                </option>
+
+                <option value="Konditsioner">
+                    Konditsioner
+                </option>
+
+            </select>
+
+
+            <select
+                id="cityFilter2"
+                onchange="
+                    document.getElementById('cityFilter').value = this.value;
+                    filterMasters();
+                "
+            >
+
+                <option value="">
+                    Barcha shaharlar
+                </option>
+
+                <option value="Toshkent">
+                    Toshkent
+                </option>
+
+                <option value="Samarqand">
+                    Samarqand
+                </option>
+
+                <option value="Andijon">
+                    Andijon
+                </option>
+
+                <option value="Farg‘ona">
+                    Farg‘ona
+                </option>
+
+                <option value="Namangan">
+                    Namangan
+                </option>
+
+                <option value="Buxoro">
+                    Buxoro
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- USTALAR SHU YERGA CHIQADI -->
+
+        <div
+            id="masterGrid"
+            class="master-grid"
+        >
+        </div>
+
+
+        <div
+            id="noResults"
+            style="display:none;"
+        >
+            Usta topilmadi.
+        </div>
+
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- ABOUT -->
+    <!-- ============================= -->
+
+    <section id="about" class="section">
+
+        <h2>
+            Usta.Uz haqida
+        </h2>
+
+        <p>
+            Usta.Uz — mijozlarga kerakli mutaxassislarni
+            topishga yordam beruvchi platforma.
+        </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- PROFIL MODALI -->
+    <!-- ================================================= -->
+
+    <div
+        id="profileModal"
+        class="modal"
+        style="display:none;"
+    >
+
+        <div class="modal-content">
+
+            <span
+                class="close"
+                onclick="closeProfile()"
+            >
+                &times;
+            </span>
+
+
+            <div id="profileContent">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- BUYURTMA MODALI -->
+    <!-- ================================================= -->
+
+    <div
+        id="orderModal"
+        class="modal"
+        style="display:none;"
+    >
+
+        <div class="modal-content">
+
+            <span
+                class="close"
+                onclick="closeOrder()"
+            >
+                &times;
+            </span>
+
+
+            <h2>
+                📋 Buyurtma berish
+            </h2>
+
+
+            <p>
+                Kerakli ma'lumotlarni kiriting.
+            </p>
+
+
+            <!-- BUYURTMA FORMASI -->
+
+            <form
+                id="orderForm"
+                onsubmit="submitOrder(event)"
+            >
+
+
+                <!-- ISM -->
+
+                <label for="customerName">
+                    Ismingiz
+                </label>
+
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="Ismingizni kiriting"
+                    required
+                >
+
+
+                <!-- TELEFON -->
+
+                <label for="customerPhone">
+                    Telefon raqam
+                </label>
+
+                <input
+                    type="tel"
+                    id="customerPhone"
+                    placeholder="+998 90 123 45 67"
+                    required
+                >
+
+
+                <!-- SHAHAR -->
+
+                <label for="orderCity">
+                    Shahar
+                </label>
+
+                <select
+                    id="orderCity"
+                    required
+                >
+
+                    <option value="">
+                        Shaharni tanlang
+                    </option>
+
+                    <option value="Toshkent">
+                        Toshkent
+                    </option>
+
+                    <option value="Samarqand">
+                        Samarqand
+                    </option>
+
+                    <option value="Andijon">
+                        Andijon
+                    </option>
+
+                    <option value="Farg‘ona">
+                        Farg‘ona
+                    </option>
+
+                    <option value="Namangan">
+                        Namangan
+                    </option>
+
+                    <option value="Buxoro">
+                        Buxoro
+                    </option>
+
+                    <option value="Qashqadaryo">
+                        Qashqadaryo
+                    </option>
+
+                </select>
+
+
+                <!-- MANZIL -->
+
+                <label for="orderAddress">
+                    Manzil
+                </label>
+
+                <input
+                    type="text"
+                    id="orderAddress"
+                    placeholder="Manzilingizni kiriting"
+                    required
+                >
+
+
+                <!-- XIZMAT -->
+
+                <label for="orderService">
+                    Xizmat turi
+                </label>
+
+                <select
+                    id="orderService"
+                    required
+                >
+
+                    <option value="">
+                        Xizmatni tanlang
+                    </option>
+
+                    <option value="Elektrik">
+                        Elektrik
+                    </option>
+
+                    <option value="Santexnik">
+                        Santexnik
+                    </option>
+
+                    <option value="Quruvchi">
+                        Quruvchi
+                    </option>
+
+                    <option value="Malyar">
+                        Malyar
+                    </option>
+
+                    <option value="Duradgor">
+                        Duradgor
+                    </option>
+
+                    <option value="Konditsioner">
+                        Konditsioner
+                    </option>
+
+                </select>
+
+
+                <!-- TANLANGAN USTA -->
+
+                <label for="orderMaster">
+                    Tanlangan usta
+                </label>
+
+                <input
+                    type="text"
+                    id="orderMaster"
+                    placeholder="Usta tanlanadi"
+                    readonly
+                >
+
+
+                <!-- TAVSIF -->
+
+                <label for="orderDescription">
+                    Muammo yoki buyurtma haqida
+                </label>
+
+                <textarea
+                    id="orderDescription"
+                    rows="5"
+                    placeholder="Masalan: quvurdan suv oqyapti..."
+                    required
+                ></textarea>
+
+
+                <!-- YUBORISH -->
+
+                <button
+                    type="submit"
+                    class="order-submit"
+                >
+                    🚀 Buyurtmani yuborish
+                </button>
+
+
+                <!-- BEKOR QILISH -->
+
+                <button
+                    type="button"
+                    class="order-cancel"
+                    onclick="closeOrder()"
+                >
+                    Bekor qilish
+                </button>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================= -->
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
+    <!-- ============================= -->
+    <!-- HERO QIDIRUV FUNKSIYASI -->
+    <!-- ============================= -->
+
+    <script>
+
+        function searchMasters() {
+
+            const city =
+                document.getElementById("cityFilter").value;
+
+
+            // Ustalar bo‘limiga o'tish
+
+            document
+                .getElementById("masters")
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
+
+
+            // Ikkinchi shahar filtriga tanlangan shaharni berish
+
+            const cityFilter2 =
+                document.getElementById("cityFilter2");
+
+
+            if (cityFilter2) {
+
+                cityFilter2.value = city;
+
+            }
+
+
+            // Ustalarni filtrlash
+
+            filterMasters();
+
+        }
+
+    </script>
+
+</body>
+
+</html>
