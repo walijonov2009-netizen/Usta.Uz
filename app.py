@@ -1,18 +1,26 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
+import os
 
 app = Flask(__name__)
 
 app.secret_key = "usta-uz-maxfiy-kalit"
 
+# ======================================
+# 🗄️ DATABASE MANZILI
+# ======================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "usta.db")
+
 
 # ======================================
-# 🗄️ BAZA YARATISH
+# 🗄️ BAZANI YARATISH / TEKSHIRISH
 # ======================================
 
 def create_database():
 
-    conn = sqlite3.connect("usta.db")
+    conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
     # Orders jadvali
@@ -31,7 +39,7 @@ def create_database():
         )
     """)
 
-    # Eski bazani tekshirish
+    # Mavjud ustunlarni tekshirish
     cursor.execute("PRAGMA table_info(orders)")
 
     columns = [
@@ -39,8 +47,15 @@ def create_database():
         for row in cursor.fetchall()
     ]
 
-    # Agar eski bazada status yo'q bo'lsa,
-    # avtomatik qo'shamiz
+    # master yo'q bo'lsa
+    if "master" not in columns:
+
+        cursor.execute("""
+            ALTER TABLE orders
+            ADD COLUMN master TEXT
+        """)
+
+    # status yo'q bo'lsa
     if "status" not in columns:
 
         cursor.execute("""
@@ -50,6 +65,13 @@ def create_database():
 
     conn.commit()
     conn.close()
+
+
+# ======================================
+# 🚀 SERVER ISHGA TUSHGANDA BAZANI YARATISH
+# ======================================
+
+create_database()
 
 
 # ======================================
@@ -63,15 +85,20 @@ def home():
 
 
 # ======================================
-# 📦 BUYURTMA QABUL QILISH
+# 📦 BUYURTMA
 # ======================================
 
 @app.route("/order", methods=["POST"])
 def order():
 
+    # Har bir buyurtmada bazani tekshiramiz
+    create_database()
+
+    conn = None
+
     try:
 
-        # Formadan ma'lumotlarni olish
+        # Formadan ma'lumotlar
         name = request.form.get("name", "").strip()
         phone = request.form.get("phone", "").strip()
         city = request.form.get("city", "").strip()
@@ -80,8 +107,7 @@ def order():
         description = request.form.get("description", "").strip()
         master = request.form.get("master", "").strip()
 
-
-        # Majburiy maydonlarni tekshirish
+        # Tekshirish
         if not name:
             return "❌ Ism kiritilmagan!"
 
@@ -100,12 +126,10 @@ def order():
         if not description:
             return "❌ Buyurtma tavsifi kiritilmagan!"
 
-
-        # Baza bilan ulanish
-        conn = sqlite3.connect("usta.db")
+        # Baza
+        conn = sqlite3.connect(DATABASE)
 
         cursor = conn.cursor()
-
 
         # Buyurtmani saqlash
         cursor.execute("""
@@ -132,23 +156,29 @@ def order():
             "new"
         ))
 
-
-        # Saqlash
         conn.commit()
 
-        conn.close()
+        print("✅ YANGI BUYURTMA SAQLANDI!")
 
-
-        # Muvaffaqiyatli javob
         return "✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!"
-
 
     except Exception as e:
 
-        # Xatoni terminalda ko'rsatish
-        print("BUYURTMA XATOSI:", e)
+        print("======================================")
+        print("❌ BUYURTMA XATOSI:", e)
+        print("======================================")
+
+        if conn:
+
+            conn.rollback()
 
         return "❌ Buyurtma yuborishda server xatosi yuz berdi!"
+
+    finally:
+
+        if conn:
+
+            conn.close()
 
 
 # ======================================
@@ -158,33 +188,28 @@ def order():
 @app.route("/admin")
 def admin():
 
-    # Login tekshirish
     if not session.get("admin_logged_in"):
 
         return redirect("/admin-login")
 
+    # Bazani tekshirish
+    create_database()
 
-    # Baza bilan ulanish
-    conn = sqlite3.connect("usta.db")
+    conn = sqlite3.connect(DATABASE)
 
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
 
-
-    # Buyurtmalarni olish
     cursor.execute("""
         SELECT *
         FROM orders
         ORDER BY id DESC
     """)
 
-
     orders = cursor.fetchall()
 
-
     conn.close()
-
 
     return render_template(
         "admin.html",
@@ -201,27 +226,18 @@ def admin_login():
 
     if request.method == "POST":
 
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
 
-
-        # Login va parol
-        if (
-            username == "admin"
-            and password == "12345"
-        ):
+        if username == "admin" and password == "12345":
 
             session["admin_logged_in"] = True
 
             return redirect("/admin")
 
-
         return "❌ Login yoki parol noto‘g‘ri!"
 
-
-    return render_template(
-        "admin_login.html"
-    )
+    return render_template("admin_login.html")
 
 
 # ======================================
@@ -234,16 +250,15 @@ def admin_login():
 )
 def accept_order(order_id):
 
-    # Admin login tekshirish
     if not session.get("admin_logged_in"):
 
         return redirect("/admin-login")
 
+    create_database()
 
-    conn = sqlite3.connect("usta.db")
+    conn = sqlite3.connect(DATABASE)
 
     cursor = conn.cursor()
-
 
     cursor.execute("""
         UPDATE orders
@@ -251,11 +266,9 @@ def accept_order(order_id):
         WHERE id = ?
     """, (order_id,))
 
-
     conn.commit()
 
     conn.close()
-
 
     return redirect("/admin")
 
@@ -270,16 +283,15 @@ def accept_order(order_id):
 )
 def cancel_order(order_id):
 
-    # Admin login tekshirish
     if not session.get("admin_logged_in"):
 
         return redirect("/admin-login")
 
+    create_database()
 
-    conn = sqlite3.connect("usta.db")
+    conn = sqlite3.connect(DATABASE)
 
     cursor = conn.cursor()
-
 
     cursor.execute("""
         UPDATE orders
@@ -287,11 +299,9 @@ def cancel_order(order_id):
         WHERE id = ?
     """, (order_id,))
 
-
     conn.commit()
 
     conn.close()
-
 
     return redirect("/admin")
 
@@ -312,12 +322,10 @@ def admin_logout():
 
 
 # ======================================
-# 🚀 SERVERNI ISHGA TUSHIRISH
+# 🚀 LOCAL SERVER
 # ======================================
 
 if __name__ == "__main__":
-
-    create_database()
 
     app.run(
         debug=True,
